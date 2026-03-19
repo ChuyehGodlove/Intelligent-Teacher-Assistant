@@ -62,6 +62,34 @@ router.post("/", async (req, res) => {
   });
 });
 
+// Lookup a student by their student code (e.g. STU001)
+router.get("/lookup", async (req, res) => {
+  const code = req.query.code as string;
+  if (!code) {
+    res.status(400).json({ error: "code query param is required" });
+    return;
+  }
+  const [student] = await db
+    .select()
+    .from(studentsTable)
+    .where(eq(studentsTable.studentCode, code.toUpperCase()));
+
+  if (!student) {
+    res.status(404).json({ error: "Student not found" });
+    return;
+  }
+  const [c] = await db.select().from(classesTable).where(eq(classesTable.id, student.classId));
+  res.json({
+    id: student.id,
+    name: student.name,
+    email: student.email,
+    studentCode: student.studentCode,
+    classId: student.classId,
+    className: c?.name ?? "",
+    createdAt: student.createdAt.toISOString(),
+  });
+});
+
 router.get("/:studentId", async (req, res) => {
   const { studentId } = GetStudentParams.parse({ studentId: Number(req.params.studentId) });
   const [student] = await db.select().from(studentsTable).where(eq(studentsTable.id, studentId));

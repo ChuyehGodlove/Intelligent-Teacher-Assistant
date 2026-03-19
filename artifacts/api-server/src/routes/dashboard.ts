@@ -6,8 +6,10 @@ import {
   testsTable,
   testResultsTable,
   paperUploadsTable,
+  questionsTable,
+  studentAnswersTable,
 } from "@workspace/db/schema";
-import { eq, count, sql } from "drizzle-orm";
+import { eq, count, inArray } from "drizzle-orm";
 
 const router: IRouter = Router();
 
@@ -41,7 +43,32 @@ router.get("/overview", async (_req, res) => {
       }
 
       const cuiScore = Math.min(100, Math.round(averageScore));
-      const recentTrend = cuiScore >= 70 ? "improving" : cuiScore >= 50 ? "stable" : "declining";
+      const recentTrend =
+        cuiScore >= 70 ? "improving" : cuiScore >= 50 ? "stable" : "declining";
+
+      // Find flagged questions for this class
+      const testIds = classTests.map((t) => t.id);
+      let flaggedCount = 0;
+      if (testIds.length > 0) {
+        const questions = await db
+          .select()
+          .from(questionsTable)
+          .where(inArray(questionsTable.testId, testIds));
+        const resultIds = classResults.map((r) => r.id);
+        if (resultIds.length > 0) {
+          for (const q of questions) {
+            const answers = await db
+              .select()
+              .from(studentAnswersTable)
+              .where(eq(studentAnswersTable.questionId, q.id));
+            const relevant = answers.filter((a) => resultIds.includes(a.resultId));
+            if (relevant.length > 0) {
+              const failed = relevant.filter((a) => a.isCorrect === false).length;
+              if ((failed / relevant.length) > 0.5) flaggedCount++;
+            }
+          }
+        }
+      }
 
       return {
         classId: c.id,
@@ -51,6 +78,7 @@ router.get("/overview", async (_req, res) => {
         totalStudents: classStudents.length,
         totalTestsCompleted: classResults.length,
         recentTrend,
+        flaggedQuestions: flaggedCount,
         topicBreakdown: [{ topic: c.subject, score: averageScore }],
       };
     })
@@ -59,7 +87,9 @@ router.get("/overview", async (_req, res) => {
   const averageCUI =
     classesWithCUI.length > 0
       ? Math.round(
-          (classesWithCUI.reduce((sum, c) => sum + c.cuiScore, 0) / classesWithCUI.length) * 10
+          (classesWithCUI.reduce((sum, c) => sum + c.cuiScore, 0) /
+            classesWithCUI.length) *
+            10
         ) / 10
       : 0;
 
@@ -69,7 +99,10 @@ router.get("/overview", async (_req, res) => {
     .map((r) => {
       const test = testMap.get(r.testId);
       const student = studentMap.get(r.studentId);
-      const percentage = r.totalPoints > 0 ? Math.round((r.earnedPoints / r.totalPoints) * 1000) / 10 : 0;
+      const percentage =
+        r.totalPoints > 0
+          ? Math.round((r.earnedPoints / r.totalPoints) * 1000) / 10
+          : 0;
       return {
         id: r.id,
         testId: r.testId,
@@ -86,10 +119,10 @@ router.get("/overview", async (_req, res) => {
     });
 
   res.json({
-    totalClasses: totalClasses?.count ?? 0,
-    totalStudents: totalStudents?.count ?? 0,
-    totalTests: totalTests?.count ?? 0,
-    totalUploads: totalUploads?.count ?? 0,
+    totalClasses: Number(totalClasses?.count ?? 0),
+    totalStudents: Number(totalStudents?.count ?? 0),
+    totalTests: Number(totalTests?.count ?? 0),
+    totalUploads: Number(totalUploads?.count ?? 0),
     averageCUI,
     classes: classesWithCUI,
     recentResults,

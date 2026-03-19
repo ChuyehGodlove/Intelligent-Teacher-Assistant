@@ -4,7 +4,7 @@ import { useStudent } from "@/context/StudentContext";
 import { Button } from "@/components/ui/button";
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
-  const { studentCode, logout } = useStudent();
+  const { studentCode, studentInfo, logout } = useStudent();
   const [, setLocation] = useLocation();
 
   const handleLogout = () => {
@@ -19,20 +19,36 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <Link href="/student/tests" className="flex items-center gap-3 group">
             <div className="bg-accent/10 p-2 rounded-xl text-accent group-hover:bg-accent/20 transition-colors">
-               <BookOpen className="w-6 h-6" />
+              <BookOpen className="w-6 h-6" />
             </div>
-            <h1 className="text-xl font-display font-bold text-foreground">
-              Student <span className="text-accent">Portal</span>
-            </h1>
+            <div>
+              <h1 className="text-xl font-display font-bold text-foreground leading-tight">
+                Student <span className="text-accent">Portal</span>
+              </h1>
+              {studentInfo?.className && (
+                <p className="text-xs text-muted-foreground font-medium leading-none">{studentInfo.className}</p>
+              )}
+            </div>
           </Link>
-          
+
           {studentCode && (
-            <div className="flex items-center gap-6">
-              <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-secondary rounded-full">
-                 <UserCircle className="w-5 h-5 text-muted-foreground" />
-                 <span className="font-semibold text-sm text-foreground">{studentCode}</span>
+            <div className="flex items-center gap-4">
+              <div className="hidden sm:flex flex-col items-end">
+                <div className="flex items-center gap-2 px-4 py-1.5 bg-secondary rounded-full">
+                  <UserCircle className="w-4 h-4 text-muted-foreground" />
+                  <span className="font-semibold text-sm text-foreground">
+                    {studentInfo?.studentName ?? studentCode}
+                  </span>
+                </div>
+                {studentInfo?.studentName && (
+                  <span className="text-xs text-muted-foreground mt-0.5 pr-1">{studentCode}</span>
+                )}
               </div>
-              <Button variant="ghost" className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl" onClick={handleLogout}>
+              <Button
+                variant="ghost"
+                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl"
+                onClick={handleLogout}
+              >
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
               </Button>
