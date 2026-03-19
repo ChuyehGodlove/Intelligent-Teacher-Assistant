@@ -8,7 +8,7 @@ import {
   studentAnswersTable,
   classesTable,
 } from "@workspace/db/schema";
-import { eq, count, inArray } from "drizzle-orm";
+import { eq, count, inArray, and } from "drizzle-orm";
 import {
   CreateTestBody,
   GetTestsQueryParams,
@@ -116,20 +116,66 @@ router.get("/:testId", async (req, res) => {
       optionB: q.optionB,
       optionC: q.optionC,
       optionD: q.optionD,
-      modelAnswer: q.questionType === "structured" ? undefined : undefined, // don't expose model answer to students
       points: q.points,
     })),
   });
 });
 
-// Get per-question insights for a test (for teacher AI flagging)
+// ─── Check if student already submitted this test ─────────────────────────────
+router.get("/:testId/submission-status", async (req, res) => {
+  const testId = Number(req.params.testId);
+  const studentCode = req.query.studentCode as string;
+
+  if (!studentCode) {
+    res.status(400).json({ error: "studentCode is required" });
+    return;
+  }
+
+  const [student] = await db
+    .select()
+    .from(studentsTable)
+    .where(eq(studentsTable.studentCode, studentCode.toUpperCase()));
+
+  if (!student) {
+    res.json({ submitted: false });
+    return;
+  }
+
+  const [existing] = await db
+    .select()
+    .from(testResultsTable)
+    .where(
+      and(
+        eq(testResultsTable.testId, testId),
+        eq(testResultsTable.studentId, student.id)
+      )
+    );
+
+  if (existing?.status === "submitted") {
+    const percentage =
+      existing.totalPoints > 0
+        ? Math.round((existing.earnedPoints / existing.totalPoints) * 1000) / 10
+        : 0;
+    res.json({
+      submitted: true,
+      result: {
+        id: existing.id,
+        earnedPoints: existing.earnedPoints,
+        totalPoints: existing.totalPoints,
+        percentage,
+        submittedAt: existing.submittedAt.toISOString(),
+      },
+    });
+  } else {
+    res.json({ submitted: false });
+  }
+});
+
+// ─── Per-question insights ────────────────────────────────────────────────────
 router.get("/:testId/insights", async (req, res) => {
   const testId = Number(req.params.testId);
   const [test] = await db.select().from(testsTable).where(eq(testsTable.id, testId));
-  if (!test) {
-    res.status(404).json({ error: "Test not found" });
-    return;
-  }
+  if (!test) { res.status(404).json({ error: "Test not found" }); return; }
 
   const questions = await db
     .select()
@@ -180,7 +226,7 @@ router.get("/:testId/insights", async (req, res) => {
   res.json({ testId, testTitle: test.title, insights });
 });
 
-// Get all insights across all tests for a class (for dashboard AI panel)
+// ─── Class-level AI insights ──────────────────────────────────────────────────
 router.get("/class/:classId/insights", async (req, res) => {
   const classId = Number(req.params.classId);
   const tests = await db.select().from(testsTable).where(eq(testsTable.classId, classId));
@@ -238,6 +284,7 @@ router.get("/class/:classId/insights", async (req, res) => {
   });
 });
 
+// ─── Submit test (with submission lock) ───────────────────────────────────────
 router.post("/:testId/submit", async (req, res) => {
   const { testId } = SubmitTestAnswersParams.parse({ testId: Number(req.params.testId) });
   const body = SubmitTestAnswersBody.parse(req.body);
@@ -257,6 +304,25 @@ router.post("/:testId/submit", async (req, res) => {
     return;
   }
 
+  // ── SUBMISSION LOCK CHECK ─────────────────────────────────────────────────
+  const [existingSubmission] = await db
+    .select()
+    .from(testResultsTable)
+    .where(
+      and(
+        eq(testResultsTable.testId, testId),
+        eq(testResultsTable.studentId, student.id)
+      )
+    );
+
+  if (existingSubmission?.status === "submitted") {
+    res.status(409).json({
+      error: "This test has already been submitted and cannot be re-submitted.",
+      submissionId: existingSubmission.id,
+    });
+    return;
+  }
+
   const questions = await db
     .select()
     .from(questionsTable)
@@ -266,15 +332,12 @@ router.post("/:testId/submit", async (req, res) => {
   let earnedPoints = 0;
   let totalPoints = 0;
 
-  // Compute points first
   for (const q of questions) {
     totalPoints += q.points;
   }
 
-  // Check if extended answers are provided (structured)
   const extendedAnswers = (body as any).extendedAnswers as Array<{
     questionId: number;
-    answer?: string;
     structuredAnswer?: string;
   }> | undefined;
 
@@ -286,7 +349,6 @@ router.post("/:testId/submit", async (req, res) => {
     }
   }
 
-  // Calculate MCQ points
   for (const answer of body.answers) {
     const q = questionMap.get(answer.questionId);
     if (!q) continue;
@@ -297,10 +359,9 @@ router.post("/:testId/submit", async (req, res) => {
 
   const [result] = await db
     .insert(testResultsTable)
-    .values({ testId, studentId: student.id, earnedPoints, totalPoints })
+    .values({ testId, studentId: student.id, earnedPoints, totalPoints, status: "submitted" })
     .returning();
 
-  // Save per-question answers
   const answerInserts = questions.map((q) => {
     const mcqAns = answerMap.get(q.id);
     const structAns = structuredMap.get(q.id);
@@ -314,8 +375,8 @@ router.post("/:testId/submit", async (req, res) => {
       mcqAnswer: mcqAns ?? null,
       structuredAnswer: structAns ?? null,
       isCorrect,
-      teacherMarks: null,
-      teacherComment: null,
+      teacherMarks: null as null,
+      teacherComment: null as null,
     };
   });
 

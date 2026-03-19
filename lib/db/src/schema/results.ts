@@ -10,6 +10,7 @@ export const testResultsTable = pgTable("test_results", {
   studentId: integer("student_id").notNull().references(() => studentsTable.id),
   earnedPoints: integer("earned_points").notNull().default(0),
   totalPoints: integer("total_points").notNull().default(0),
+  status: text("status").notNull().default("submitted"),
   submittedAt: timestamp("submitted_at").defaultNow().notNull(),
 });
 
