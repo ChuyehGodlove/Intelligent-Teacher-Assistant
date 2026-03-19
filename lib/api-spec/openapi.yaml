@@ -1,22 +1,33 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Intelligent Teacher Assistant API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: classes
+    description: Class management
+  - name: students
+    description: Student management
+  - name: tests
+    description: MCQ tests
+  - name: results
+    description: Test results
+  - name: uploads
+    description: Paper uploads and OCR
+  - name: dashboard
+    description: Teacher dashboard data
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +35,324 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /classes:
+    get:
+      operationId: getClasses
+      tags: [classes]
+      summary: List all classes
+      responses:
+        "200":
+          description: List of classes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Class"
+    post:
+      operationId: createClass
+      tags: [classes]
+      summary: Create a new class
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateClassRequest"
+      responses:
+        "201":
+          description: Created class
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Class"
+
+  /classes/{classId}:
+    get:
+      operationId: getClass
+      tags: [classes]
+      summary: Get a specific class
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Class details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Class"
+
+  /classes/{classId}/cui:
+    get:
+      operationId: getClassCUI
+      tags: [dashboard]
+      summary: Get Class Understanding Index for a class
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: CUI data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClassUnderstandingIndex"
+
+  /dashboard/overview:
+    get:
+      operationId: getDashboardOverview
+      tags: [dashboard]
+      summary: Get overall teacher dashboard overview
+      responses:
+        "200":
+          description: Dashboard overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardOverview"
+
+  /students:
+    get:
+      operationId: getStudents
+      tags: [students]
+      summary: List all students
+      parameters:
+        - name: classId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Student"
+    post:
+      operationId: createStudent
+      tags: [students]
+      summary: Create a new student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStudentRequest"
+      responses:
+        "201":
+          description: Created student
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+
+  /students/{studentId}:
+    get:
+      operationId: getStudent
+      tags: [students]
+      summary: Get a specific student
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Student details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+
+  /tests:
+    get:
+      operationId: getTests
+      tags: [tests]
+      summary: List all MCQ tests
+      parameters:
+        - name: classId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of tests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Test"
+    post:
+      operationId: createTest
+      tags: [tests]
+      summary: Create a new MCQ test
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTestRequest"
+      responses:
+        "201":
+          description: Created test
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Test"
+
+  /tests/{testId}:
+    get:
+      operationId: getTest
+      tags: [tests]
+      summary: Get a specific test with questions
+      parameters:
+        - name: testId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Test details with questions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TestWithQuestions"
+
+  /tests/{testId}/submit:
+    post:
+      operationId: submitTestAnswers
+      tags: [tests]
+      summary: Student submits test answers
+      parameters:
+        - name: testId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitTestRequest"
+      responses:
+        "200":
+          description: Test submission result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TestResult"
+
+  /results:
+    get:
+      operationId: getResults
+      tags: [results]
+      summary: List test results
+      parameters:
+        - name: testId
+          in: query
+          schema:
+            type: integer
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+        - name: classId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TestResult"
+
+  /uploads:
+    get:
+      operationId: getUploads
+      tags: [uploads]
+      summary: List uploaded papers
+      parameters:
+        - name: classId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of uploads
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PaperUpload"
+    post:
+      operationId: uploadPaper
+      tags: [uploads]
+      summary: Upload a handwritten paper for OCR processing
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                studentId:
+                  type: integer
+                classId:
+                  type: integer
+                description:
+                  type: string
+              required:
+                - file
+                - classId
+      responses:
+        "201":
+          description: Uploaded paper
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaperUpload"
+
+  /uploads/{uploadId}/ocr:
+    post:
+      operationId: processOCR
+      tags: [uploads]
+      summary: Trigger OCR processing for an uploaded paper
+      parameters:
+        - name: uploadId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OCR result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OCRResult"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +363,420 @@ components:
       required:
         - status
 
+    Class:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        subject:
+          type: string
+        grade:
+          type: string
+        studentCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - subject
+        - grade
+        - studentCount
+        - createdAt
+
+    CreateClassRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        subject:
+          type: string
+        grade:
+          type: string
+      required:
+        - name
+        - subject
+        - grade
+
+    Student:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        studentCode:
+          type: string
+        classId:
+          type: integer
+        className:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - studentCode
+        - classId
+        - createdAt
+
+    CreateStudentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        classId:
+          type: integer
+      required:
+        - name
+        - email
+        - classId
+
+    Test:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        classId:
+          type: integer
+        className:
+          type: string
+        questionCount:
+          type: integer
+        durationMinutes:
+          type: integer
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - classId
+        - questionCount
+        - durationMinutes
+        - isActive
+        - createdAt
+
+    Question:
+      type: object
+      properties:
+        id:
+          type: integer
+        questionText:
+          type: string
+        optionA:
+          type: string
+        optionB:
+          type: string
+        optionC:
+          type: string
+        optionD:
+          type: string
+        correctAnswer:
+          type: string
+          enum: [A, B, C, D]
+        points:
+          type: integer
+      required:
+        - id
+        - questionText
+        - optionA
+        - optionB
+        - optionC
+        - optionD
+        - correctAnswer
+        - points
+
+    QuestionForStudent:
+      type: object
+      properties:
+        id:
+          type: integer
+        questionText:
+          type: string
+        optionA:
+          type: string
+        optionB:
+          type: string
+        optionC:
+          type: string
+        optionD:
+          type: string
+        points:
+          type: integer
+      required:
+        - id
+        - questionText
+        - optionA
+        - optionB
+        - optionC
+        - optionD
+        - points
+
+    TestWithQuestions:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        classId:
+          type: integer
+        durationMinutes:
+          type: integer
+        isActive:
+          type: boolean
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuestionForStudent"
+      required:
+        - id
+        - title
+        - classId
+        - durationMinutes
+        - isActive
+        - questions
+
+    CreateTestRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        classId:
+          type: integer
+        durationMinutes:
+          type: integer
+        questions:
+          type: array
+          items:
+            type: object
+            properties:
+              questionText:
+                type: string
+              optionA:
+                type: string
+              optionB:
+                type: string
+              optionC:
+                type: string
+              optionD:
+                type: string
+              correctAnswer:
+                type: string
+                enum: [A, B, C, D]
+              points:
+                type: integer
+            required:
+              - questionText
+              - optionA
+              - optionB
+              - optionC
+              - optionD
+              - correctAnswer
+              - points
+      required:
+        - title
+        - classId
+        - durationMinutes
+        - questions
+
+    SubmitTestRequest:
+      type: object
+      properties:
+        studentCode:
+          type: string
+        answers:
+          type: array
+          items:
+            type: object
+            properties:
+              questionId:
+                type: integer
+              answer:
+                type: string
+                enum: [A, B, C, D]
+            required:
+              - questionId
+              - answer
+      required:
+        - studentCode
+        - answers
+
+    TestResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        testId:
+          type: integer
+        testTitle:
+          type: string
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        studentCode:
+          type: string
+        score:
+          type: number
+        totalPoints:
+          type: integer
+        earnedPoints:
+          type: integer
+        percentage:
+          type: number
+        submittedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - testId
+        - testTitle
+        - studentId
+        - studentName
+        - studentCode
+        - score
+        - totalPoints
+        - earnedPoints
+        - percentage
+        - submittedAt
+
+    ClassUnderstandingIndex:
+      type: object
+      properties:
+        classId:
+          type: integer
+        className:
+          type: string
+        cuiScore:
+          type: number
+          description: Score from 0-100 representing class understanding level
+        averageScore:
+          type: number
+        totalStudents:
+          type: integer
+        totalTestsCompleted:
+          type: integer
+        recentTrend:
+          type: string
+          enum: [improving, declining, stable]
+        topicBreakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              topic:
+                type: string
+              score:
+                type: number
+            required:
+              - topic
+              - score
+      required:
+        - classId
+        - className
+        - cuiScore
+        - averageScore
+        - totalStudents
+        - totalTestsCompleted
+        - recentTrend
+        - topicBreakdown
+
+    DashboardOverview:
+      type: object
+      properties:
+        totalClasses:
+          type: integer
+        totalStudents:
+          type: integer
+        totalTests:
+          type: integer
+        totalUploads:
+          type: integer
+        averageCUI:
+          type: number
+        classes:
+          type: array
+          items:
+            $ref: "#/components/schemas/ClassUnderstandingIndex"
+        recentResults:
+          type: array
+          items:
+            $ref: "#/components/schemas/TestResult"
+      required:
+        - totalClasses
+        - totalStudents
+        - totalTests
+        - totalUploads
+        - averageCUI
+        - classes
+        - recentResults
+
+    PaperUpload:
+      type: object
+      properties:
+        id:
+          type: integer
+        filename:
+          type: string
+        originalName:
+          type: string
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        classId:
+          type: integer
+        className:
+          type: string
+        description:
+          type: string
+        ocrStatus:
+          type: string
+          enum: [pending, processing, completed, failed]
+        ocrText:
+          type: string
+        uploadedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - filename
+        - originalName
+        - classId
+        - ocrStatus
+        - uploadedAt
+
+    OCRResult:
+      type: object
+      properties:
+        uploadId:
+          type: integer
+        status:
+          type: string
+          enum: [processing, completed, failed]
+        extractedText:
+          type: string
+        confidence:
+          type: number
+        teacherComments:
+          type: array
+          items:
+            type: string
+      required:
+        - uploadId
+        - status

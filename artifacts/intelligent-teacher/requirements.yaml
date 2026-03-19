@@ -1,0 +1,22 @@
+packages:
+  "framer-motion": "For page transitions and interactive animations"
+  "recharts": "For data visualizations and CUI charts"
+  "date-fns": "For formatting timestamps beautifully"
+  "clsx": "Utility for conditional classes"
+  "tailwind-merge": "Utility for merging tailwind classes"
+
+images:
+  - path: "artifacts/intelligent-teacher/public/images/landing-bg.png"
+    description: "Abstract geometric background with subtle soft gradients in indigo, cyan, and white. Very clean and professional, educational theme, bright and airy."
+    aspect_ratio: "16:9"
+  - path: "artifacts/intelligent-teacher/public/images/teacher-avatar.png"
+    description: "A beautifully illustrated avatar of an intelligent, friendly teacher, 3d minimal style, soft lighting, vibrant colors"
+    aspect_ratio: "1:1"
+  - path: "artifacts/intelligent-teacher/public/images/student-avatar.png"
+    description: "A beautifully illustrated avatar of a focused student, 3d minimal style, soft lighting, vibrant colors"
+    aspect_ratio: "1:1"
+
+notes:
+  - Backend API uses /api prefix with endpoints defined in the OpenAPI spec
+  - React Query hooks are imported directly from @workspace/api-client-react
+  - File uploads use standard multipart/form-data
