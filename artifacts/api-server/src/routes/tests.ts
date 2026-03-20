@@ -116,6 +116,8 @@ router.get("/:testId", async (req, res) => {
       optionB: q.optionB,
       optionC: q.optionC,
       optionD: q.optionD,
+      correctAnswer: q.correctAnswer,
+      modelAnswer: q.modelAnswer,
       points: q.points,
     })),
   });

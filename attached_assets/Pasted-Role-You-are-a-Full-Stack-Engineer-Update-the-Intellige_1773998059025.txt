@@ -1,0 +1,10 @@
+Role: You are a Full-Stack Engineer. Update the 'Intelligent Teacher Assistant' project with the following requirements:1. Landing Page & UI Overhaul:
+* Replace all cartoon/illustration-style images with the uploaded realistic images (OIP.webp and OIP (1).webp).
+* Add a subtle mathematical background pattern (using CSS or SVGs) featuring algebra and integration symbols (e.g., $\int$, $\sum$, $a^2+b^2$) at low opacity.
+* Include static "preview" designs of the Mastery Matrix and Class Analytics dashboards on the landing page to make it captivating.2. Database Schema & Relationships:Teacher-Class: Configure a One-to-Many relationship (one Teacher can have multiple Classes).Student-Subject: Configure a One-to-One relationship (one Student is tied to one Subject for the term).Ensure each Class has a unique class_id or 'Class Code'.3. Authentication & Sign-Up:Create a toggle on the Sign-Up page for 'Teacher' vs. 'Student'.Teachers sign up with Email/Password.
+* Students can sign up via Email OR by entering a valid class_id.4. Test Persistence & Security:
+* Fix Bug: Investigate and fix why saved tests with questions/answers appear blank or return 'test not found' when reopened or accessed by students .Server-Side Save: Ensure all test data is committed to the PostgreSQL database immediately upon the teacher clicking 'Save'.Submission Lock: Once a student submits their test (MCQ or Structured), create a Submission record with status='submitted'.Edit Prevention: If a test is 'submitted', the frontend must disable all inputs/edit buttons, and the backend must reject any further POST/PUT requests for that submission.5. Student Assessment UI:
+* Redesign the student test page to allow interactive switching (tabs or buttons) between the MCQ section and the Structured questions section .
+* For structured questions, provide a clear "Upload Scan" button for paper submissions.6. AI Analysis Logic:
+* The dashboard must flag any question where >50% of the class struggled or failed.
+* For structured questions, ensure only the teacher can mark them; the AI then audits those marks to categorize errors (Conceptual vs. Procedural)

@@ -9,6 +9,7 @@ export const classesTable = pgTable("classes", {
   name: text("name").notNull(),
   subject: text("subject").notNull(),
   grade: text("grade").notNull(),
+  classCode: text("class_code").unique(),
   subjectId: integer("subject_id").references(() => subjectsTable.id),
   teacherId: integer("teacher_id").references(() => teachersTable.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
