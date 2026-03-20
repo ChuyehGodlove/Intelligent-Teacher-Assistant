@@ -1,6 +1,8 @@
 import { Link } from "wouter";
 import { useAuth } from "@/context/AuthContext";
 import { BookOpen, GraduationCap, BarChart2, Brain, ArrowRight, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import teacherImg from "@assets/OIP_1773998172177.webp";
+import studentImg from "@assets/OIP_(1)_1773998202114.webp";
 
 // ── Math background symbols ─────────────────────────────────────────────────
 function MathBackground() {
@@ -124,38 +126,43 @@ function ClassAnalyticsPreview() {
 }
 
 // ── Teacher / Student portal card ─────────────────────────────────────────────
-function PortalCard({ href, role, title, description, cta, accent }: {
+function PortalCard({ href, role, title, description, cta, image }: {
   href: string; role: "teacher" | "student"; title: string;
-  description: string; cta: string; accent: string;
+  description: string; cta: string; image: string;
 }) {
   const isTeacher = role === "teacher";
   return (
     <Link href={href} className="group block">
-      <div className={`relative h-full bg-card/80 backdrop-blur-xl border-2 rounded-[2rem] p-10 shadow-2xl transition-all duration-300 hover:-translate-y-2 flex flex-col items-center text-center cursor-pointer overflow-hidden ${
+      <div className={`relative h-full bg-card/80 backdrop-blur-xl border-2 rounded-[2rem] shadow-2xl transition-all duration-300 hover:-translate-y-2 flex flex-col cursor-pointer overflow-hidden ${
         isTeacher ? "border-primary/30 hover:border-primary hover:shadow-primary/20" : "border-accent/30 hover:border-accent hover:shadow-accent/20"
       }`}>
         {/* Background gradient on hover */}
-        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isTeacher ? "bg-gradient-to-br from-primary/5 to-transparent" : "bg-gradient-to-br from-accent/5 to-transparent"}`} />
+        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0 ${isTeacher ? "bg-gradient-to-b from-primary/10 to-transparent" : "bg-gradient-to-b from-accent/10 to-transparent"}`} />
 
-        {/* Avatar */}
-        <div className="relative mb-8">
-          <div className={`absolute inset-0 ${isTeacher ? "bg-primary/20" : "bg-accent/20"} rounded-full blur-2xl group-hover:blur-3xl transition-all`} />
-          <div className={`relative z-10 w-32 h-32 rounded-full ring-8 ring-card shadow-xl flex items-center justify-center ${isTeacher ? "bg-gradient-to-br from-primary to-indigo-600" : "bg-gradient-to-br from-accent to-cyan-500"} group-hover:scale-105 transition-transform duration-300`}>
-            {isTeacher
-              ? <BookOpen className="w-16 h-16 text-white" />
-              : <GraduationCap className="w-16 h-16 text-white" />
-            }
+        {/* Photo */}
+        <div className="relative w-full h-52 overflow-hidden">
+          <img
+            src={image}
+            alt={title}
+            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+          />
+          <div className={`absolute inset-0 ${isTeacher ? "bg-gradient-to-b from-transparent via-transparent to-card/90" : "bg-gradient-to-b from-transparent via-transparent to-card/90"}`} />
+          <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-md ${isTeacher ? "bg-primary/90 text-white" : "bg-accent/90 text-white"}`}>
+            {isTeacher ? "Teacher" : "Student"}
           </div>
         </div>
 
-        <h2 className="text-3xl font-display font-bold text-foreground mb-3 relative z-10">{title}</h2>
-        <p className="text-muted-foreground text-base leading-relaxed max-w-xs mb-8 relative z-10">{description}</p>
-        <div className={`flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl w-full font-bold text-base relative z-10 transition-all ${
-          isTeacher
-            ? "bg-primary text-primary-foreground group-hover:bg-primary/90"
-            : "bg-accent text-accent-foreground group-hover:bg-accent/90"
-        }`}>
-          {cta} <ArrowRight className="w-4 h-4" />
+        {/* Text content */}
+        <div className="relative z-10 flex flex-col items-center text-center p-8 flex-1">
+          <h2 className="text-2xl font-display font-bold text-foreground mb-3">{title}</h2>
+          <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mb-7">{description}</p>
+          <div className={`flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl w-full font-bold text-sm transition-all ${
+            isTeacher
+              ? "bg-primary text-primary-foreground group-hover:bg-primary/90"
+              : "bg-accent text-accent-foreground group-hover:bg-accent/90"
+          }`}>
+            {cta} <ArrowRight className="w-4 h-4" />
+          </div>
         </div>
       </div>
     </Link>
@@ -244,7 +251,7 @@ export default function Landing() {
             title="I am a Teacher"
             description="Manage classes, build tests with MCQ & written questions, view AI-flagged insights and mark structured answers."
             cta={isTeacher ? "Enter Dashboard" : "Teacher Sign Up / In"}
-            accent="primary"
+            image={teacherImg}
           />
           <PortalCard
             href="/student"
@@ -252,7 +259,7 @@ export default function Landing() {
             title="I am a Student"
             description="Log in with your student code or email to access your class tests, answer MCQ and written questions."
             cta="Enter Student Portal"
-            accent="accent"
+            image={studentImg}
           />
         </div>
 
