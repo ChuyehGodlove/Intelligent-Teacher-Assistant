@@ -1,0 +1,54 @@
+Create a complete Flask web app called "Intelligent Teacher Assistant" using only Python, Flask, Jinja2, Replit Database (from replit import db), WTForms, and Bootstrap 5. No external paid APIs. Use sessions for authentication (flask_session). Store everything in Replit DB.
+
+Database structure (use Replit DB keys):
+- users: {user_id: {"email": , "password": hashed, "name": , "role": "teacher" or "student", "class_ids": [] }}
+- classes: {class_id: {"code": "ABC123", "name": "10A Biology", "subject": "Biology", "teacher_id": , "term": "2025-2026", "student_ids": [] }}
+- tests: {test_id: {"class_id": , "title": , "questions": [list of dicts: {"qid": , "type": "mcq"/"short"/"truefalse", "text": , "options": [], "correct": , "points": }], "created_at": }}
+- submissions: {submission_id: {"test_id": , "student_id": , "answers": {qid: answer}, "submitted_at": , "completed": true/false, "score": , "editable": false }}
+
+Features to implement:
+
+1. Signup / Login (two separate flows):
+   - Teacher signup: email + password + name → role = "teacher"
+   - Student signup: email + password + name + "Class Code" field. If the class code exists, automatically add student to that class. If code wrong → error.
+   - Login page with role detection. Passwords hashed with werkzeug.security.
+
+2. Teacher Dashboard (after login):
+   - "Create New Class" button → form: Class Name, Subject (dropdown or text: Math, Biology, Physics, Chemistry, English, History), Term.
+   - Auto-generate 6-character unique Class Code (e.g. "BIO10A").
+   - List of all my classes with code, subject, number of students.
+   - For each class: "Create Test" button.
+
+3. Test Creation (teacher only):
+   - Form to add multiple questions (MCQ, Short Answer, True/False).
+   - For MCQ: question text + 4 options + correct option index + points.
+   - Save entire test to Replit DB under the selected class_id.
+   - After saving, show success and "View Test" link.
+
+4. Student Dashboard:
+   - Shows list of classes they are enrolled in (via the class code they used at signup).
+   - For each class: list of available tests.
+   - Click "Take Test" → shows questions one by one or all at once (simple form).
+   - Submit button → saves answers to submissions table, sets "completed": true and "editable": false.
+   - After submission, student CANNOT edit answers anymore (UI shows "Submitted – View Result" only, no edit form).
+
+5. Locking logic:
+   - Before showing test to student, check if submission exists with completed=true → if yes, block editing and show only review mode.
+   - All test data and submissions are permanently saved on the server.
+
+6. Extra nice-to-have (but must work):
+   - Simple Bootstrap UI (clean, mobile-friendly).
+   - Navigation bar with role-based links.
+   - Logout button.
+   - Flash messages for success/error.
+   - Teacher can see list of students in their class and basic score overview (no full analysis yet – just names + scores).
+
+Tech requirements:
+- app.py as main file with all routes.
+- templates/ folder with login.html, teacher_dashboard.html, create_class.html, create_test.html, student_dashboard.html, take_test.html, etc.
+- static/ folder with Bootstrap CDN.
+- Use Replit DB directly (no SQLite).
+- Add requirements.txt with: flask, flask-session, werkzeug, python-dotenv
+- Make the app run on Replit with "python app.py" and show the public URL.
+
+Start by creating the folder structure and app.py skeleton, then build step by step. Make the code clean, commented, and ready to extend for MCQ analysis later. When done, the app should let a teacher sign up, create a class + subject, generate class code, let students sign up with that code, create a test, and students submit once with no edit possible. This is the exact core structure we need before adding AI analysis.

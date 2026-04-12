@@ -1,0 +1,82 @@
+Extend the existing "Intelligent Teacher Assistant" Flask web app (the one with teacher/student roles, classes, subjects, tests, and locked submissions) by adding a powerful, interactive Analysis Dashboard for teachers. Keep using only Flask, Replit DB (from replit import db), WTForms, Bootstrap 5, and add Chart.js via CDN for interactive charts. No external APIs. Use the exact same database structure as before and extend it where needed.
+
+Updated / Extended Database structure (Replit DB keys):
+- users: {user_id: {"email": , "password": hashed, "name": , "role": "teacher" or "student", "class_ids": [] }}
+- classes: {class_id: {"code": "ABC123", "name": "10A Biology", "subject": "Biology", "teacher_id": , "term": "2025-2026", "student_ids": [] }}
+- tests: {test_id: {"class_id": , "title": , "questions": [list of dicts: {"qid": int, "type": "mcq"/"short"/"truefalse", "text": , "options": [] or None, "correct": , "points": int}], "created_at": }}
+- submissions: {submission_id: {"test_id": , "student_id": , "answers": {qid: student_answer}, "submitted_at": , "completed": true, "editable": false, "total_score": float, "max_score": int }}
+
+New functionality to add (build on top of existing routes):
+
+1. Teacher Dashboard enhancements:
+   - Next to each class card, add a big "📊 Analysis Dashboard" button.
+   - The button links to /analysis/<class_id>
+
+2. New Analysis Dashboard page (/analysis/<class_id>):
+   - Beautiful Bootstrap layout with 4 tabs (using Bootstrap nav-tabs):
+     • Overview (class-level stats)
+     • Item Analysis (per-question deep stats)
+     • Student Performance
+     • AI Insights & Recommendations
+
+   - OVERVIEW TAB:
+     - Class average score (bar chart with Chart.js)
+     - Score distribution histogram (Chart.js bar chart: 0-20%, 21-40%, etc.)
+     - Total students, total tests taken, overall class reliability (simple KR-20 if ≥2 tests)
+     - Top 3 strongest & weakest topics (based on average per question)
+
+   - ITEM ANALYSIS TAB (this is the star feature):
+     - Responsive table of ALL questions in ALL tests of the class.
+     - Columns: Question #, Text (truncated), Type, Difficulty (p-value), Discrimination (D), Most popular wrong answer, Action button "Details"
+     - Calculations (implement these exact formulas in Python):
+       - Difficulty p = (number of students who got it correct) / (total submissions for that test)
+       - Discrimination D = (U - L) / (N/2)   where:
+         • Sort students by total score
+         • U = correct answers in top 50% of students
+         • L = correct answers in bottom 50% of students
+         • N = total students who took the test
+       - Color code: p-value (green 0.3-0.7, red <0.2 or >0.8), D (>0.3 green, <0.2 red)
+     - Click "Details" opens a modal with:
+       - Distractor analysis chart (for MCQ only): pie or bar chart showing % who chose each option (correct + all wrongs)
+       - Flag if any wrong option was chosen by >30% students → "Common misconception detected"
+
+   - STUDENT PERFORMANCE TAB:
+     - Sortable table (use simple DataTables.js CDN or plain JS sort) of every student:
+       - Name, Total tests taken, Average score %, Strengths (list of questions/topics they aced), Weaknesses (list of low-scoring questions)
+     - Click a student row → modal with their per-question breakdown + personalized note (e.g. "Struggles with photosynthesis – 3/5 wrong on related questions")
+
+   - AI INSIGHTS & RECOMMENDATIONS TAB (pure Python rule-based "intelligent" insights):
+     - Auto-generated bullet list with actionable advice, e.g.:
+       • "Question 7 has poor discrimination (D=0.12) → revise distractors or replace"
+       • "80% of class confused option B in Q3 → common misconception on [topic]"
+       • "Class average on Topic X is 42% → recommend reteach + 3 new practice questions"
+       • "What-if: Removing 2 bad questions would raise reliability from 0.65 → 0.88"
+     - One-click "Generate Report" button that shows a printable summary (new page /report/<class_id> with all charts + insights)
+
+3. Technical requirements for interactivity:
+   - Include Chart.js CDN in all analysis templates.
+   - Pass data to templates as JSON (in route, compute stats then jsonify for JS charts).
+   - Make charts interactive (hover tooltips, clickable bars if possible).
+   - Mobile-friendly Bootstrap + clean dark/light mode toggle optional.
+   - All calculations happen server-side on page load (fast even with 200+ students).
+
+4. Security & UX:
+   - Only the class teacher can access /analysis/<class_id>.
+   - Flash messages for "No submissions yet – analysis will appear after first test".
+   - Back button to dashboard.
+   - Keep all previous features 100% intact (signup with class code, locked submissions, test creation, etc.).
+
+5. Folder structure (add these):
+   - templates/analysis.html (main dashboard with tabs)
+   - templates/analysis_overview.html, analysis_item.html, analysis_student.html, analysis_insights.html (or use one file with tabs)
+   - templates/modal_question_details.html
+   - templates/report.html (printable version)
+   - static/js/charts.js (your helper script for Chart.js initialization)
+
+Update app.py with new routes:
+- @app.route('/analysis/<class_id>')
+- Helper functions in app.py: calculate_difficulty(test_id), calculate_discrimination(test_id), generate_insights(class_id), etc.
+
+Make the entire analysis section feel professional and "intelligent" — this is what makes the app stand out. Keep code clean, heavily commented, and ready for future LLM integration. When finished, the app should let teachers instantly see why a test or class is underperforming and get clear next-step recommendations.
+
+Start by updating the existing app skeleton, add the new routes and templates, implement the stats formulas first, then add the Chart.js visualizations and modals.
