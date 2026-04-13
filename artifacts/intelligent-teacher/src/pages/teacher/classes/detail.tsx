@@ -1,9 +1,10 @@
-import { useRoute } from "wouter";
+import { useRoute, Link } from "wouter";
 import { useGetClass, useGetClassCUI, useGetStudents, useGetTests } from "@workspace/api-client-react";
 import { LoadingScreen } from "@/components/ui/loading";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { RadialProgress } from "@/components/ui/radial-progress";
-import { Users, FileText, CheckCircle2, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Users, FileText, CheckCircle2, TrendingUp, TrendingDown, Minus, BarChart2 } from "lucide-react";
 
 export default function ClassDetail() {
   const [params] = useRoute("/classes/:id");
@@ -23,7 +24,15 @@ export default function ClassDetail() {
         <div className="inline-flex px-3 py-1 bg-primary/10 text-primary font-bold text-xs uppercase tracking-wider rounded-full mb-4">
           {cls.grade} • {cls.subject}
         </div>
-        <h1 className="text-4xl font-display font-extrabold tracking-tight text-foreground">{cls.name}</h1>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <h1 className="text-4xl font-display font-extrabold tracking-tight text-foreground">{cls.name}</h1>
+          <Link href={`/analysis/${classId}`}>
+            <Button className="rounded-xl gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-lg shadow-indigo-500/25 text-white font-bold">
+              <BarChart2 className="w-4 h-4" />
+              📊 Analysis Dashboard
+            </Button>
+          </Link>
+        </div>
         <div className="mt-6 flex flex-wrap gap-6 text-sm font-semibold text-muted-foreground">
           <div className="flex items-center gap-2 bg-secondary px-4 py-2 rounded-xl">
             <Users className="w-5 h-5" /> {students?.length || 0} Students

@@ -19,6 +19,7 @@ import Tests from "@/pages/teacher/tests";
 import CreateTest from "@/pages/teacher/tests/create";
 import TestDetail from "@/pages/teacher/tests/detail";
 import Uploads from "@/pages/teacher/uploads";
+import AnalysisDashboard from "@/pages/teacher/analysis";
 import StudentLogin from "@/pages/student/login";
 import StudentTests from "@/pages/student/tests";
 import TakeTest from "@/pages/student/tests/take";
@@ -72,6 +73,7 @@ function Router() {
           <Route path="/tests/create" component={CreateTest} />
           <Route path="/tests/:id" component={TestDetail} />
           <Route path="/uploads" component={Uploads} />
+          <Route path="/analysis/:classId" component={AnalysisDashboard} />
           <Route component={NotFound} />
         </Switch>
       </TeacherLayout>

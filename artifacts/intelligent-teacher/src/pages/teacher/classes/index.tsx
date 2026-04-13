@@ -5,7 +5,7 @@ import { LoadingScreen } from "@/components/ui/loading";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Users, Plus, BookOpen } from "lucide-react";
+import { Users, Plus, BookOpen, BarChart2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function Classes() {
@@ -93,27 +93,36 @@ export default function Classes() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {classes?.map((cls) => (
-          <Link key={cls.id} href={`/classes/${cls.id}`}>
-            <Card className="hover:shadow-xl hover:border-primary/50 transition-all duration-300 cursor-pointer h-full group flex flex-col">
-              <CardContent className="p-8 flex-1 flex flex-col">
-                <div className="p-3 bg-secondary rounded-2xl w-fit mb-6 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+          <Card key={cls.id} className="hover:shadow-xl hover:border-primary/30 transition-all duration-300 h-full flex flex-col group">
+            <CardContent className="p-8 flex-1 flex flex-col">
+              <div className="flex items-start justify-between mb-6">
+                <div className="p-3 bg-secondary rounded-2xl text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                   <BookOpen className="w-6 h-6" />
                 </div>
-                <h3 className="text-2xl font-display font-bold text-foreground">{cls.name}</h3>
-                <div className="mt-2 space-y-1 text-sm font-medium text-muted-foreground flex-1">
-                  <p>Subject: <span className="text-foreground">{cls.subject}</span></p>
-                  <p>Grade: <span className="text-foreground">{cls.grade}</span></p>
+                {cls.classCode && (
+                  <span className="text-xs font-bold text-muted-foreground bg-secondary px-2.5 py-1 rounded-lg font-mono">{cls.classCode}</span>
+                )}
+              </div>
+              <h3 className="text-2xl font-display font-bold text-foreground">{cls.name}</h3>
+              <div className="mt-2 space-y-1 text-sm font-medium text-muted-foreground flex-1">
+                <p>Subject: <span className="text-foreground">{cls.subject}</span></p>
+                <p>Grade: <span className="text-foreground">{cls.grade}</span></p>
+              </div>
+              <div className="mt-6 pt-5 border-t border-border flex items-center gap-2">
+                <div className="flex items-center gap-1.5 text-sm text-muted-foreground font-semibold mr-auto">
+                  <Users className="w-4 h-4" />{cls.studentCount} Enrolled
                 </div>
-                <div className="mt-6 pt-6 border-t border-border flex items-center justify-between text-sm font-bold">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Users className="w-5 h-5" />
-                    {cls.studentCount} Enrolled
-                  </div>
-                  <span className="text-primary group-hover:translate-x-1 transition-transform">View Details &rarr;</span>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+                <Link href={`/classes/${cls.id}`}>
+                  <button className="text-sm font-bold text-primary hover:underline px-2 py-1">Details →</button>
+                </Link>
+                <Link href={`/analysis/${cls.id}`}>
+                  <button className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors shadow">
+                    <BarChart2 className="w-3.5 h-3.5" /> Analysis
+                  </button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
         ))}
         {classes?.length === 0 && !isCreating && (
           <div className="col-span-full p-12 text-center border-2 border-dashed border-border rounded-2xl">
