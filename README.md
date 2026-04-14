@@ -1,3 +1,7 @@
+
+
+Hosted link:https://ede78df7-97d5-4806-aac1-018038333e34-00-3dzge2lr71kun.riker.replit.dev/
+
 Intelligent Teacher AssistantAn AI-powered formative assessment platform designed to help teachers track student understanding in real-time. 
 This system bridges the gap between traditional paper-based testing and modern data analytics using a hybrid "4+4" instructional model.
 🚀 The "4+4" MethodologyThe platform is built around a specific instructional cycle:Instruction Phase: 4 hours of initial teaching.Diagnostic Check: 
