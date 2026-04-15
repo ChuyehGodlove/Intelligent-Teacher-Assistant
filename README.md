@@ -1,6 +1,5 @@
 
 
-Hosted link:https://ede78df7-97d5-4806-aac1-018038333e34-00-3dzge2lr71kun.riker.replit.dev/
 
 Intelligent Teacher AssistantAn AI-powered formative assessment platform designed to help teachers track student understanding in real-time. 
 This system bridges the gap between traditional paper-based testing and modern data analytics using a hybrid "4+4" instructional model.
@@ -21,3 +20,5 @@ OpenCV for image processing and Mathpix/NLP for handwriting and comment analysis
 🛠️ Current Development FocusTransitioning the landing page from generic illustrations to realistic educational imagery with mathematical background designs.
 Including dashboard and analytics previews on the main landing page.
 Resolving data persistence issues to ensure saved tests are consistently retrievable for both teachers and students
+
+https://ede78df7-97d5-4806-aac1-018038333e34-00-3dzge2lr71kun.riker.replit.dev/
