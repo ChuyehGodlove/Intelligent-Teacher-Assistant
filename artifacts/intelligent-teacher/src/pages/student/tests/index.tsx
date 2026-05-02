@@ -5,7 +5,7 @@ import { LoadingScreen } from "@/components/ui/loading";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   FileText, Clock, PlayCircle, User, BookOpen,
-  CheckCircle2, Eye, Lock,
+  CheckCircle2, Eye, Lock, ArrowLeft,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -51,6 +51,12 @@ export default function StudentTests() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
+      <Link href="/student/dashboard">
+        <button className="flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+        </button>
+      </Link>
+
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-4xl font-display font-extrabold tracking-tight text-foreground">
