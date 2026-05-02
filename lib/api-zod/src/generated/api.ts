@@ -23,6 +23,7 @@ export const GetClassesResponseItem = zod.object({
   subject: zod.string(),
   grade: zod.string(),
   studentCount: zod.number(),
+  classCode: zod.string().optional(),
   createdAt: zod.date(),
 });
 export const GetClassesResponse = zod.array(GetClassesResponseItem);
@@ -49,6 +50,7 @@ export const GetClassResponse = zod.object({
   subject: zod.string(),
   grade: zod.string(),
   studentCount: zod.number(),
+  classCode: zod.string().optional(),
   createdAt: zod.date(),
 });
 
@@ -195,11 +197,13 @@ export const CreateTestBody = zod.object({
   questions: zod.array(
     zod.object({
       questionText: zod.string(),
-      optionA: zod.string(),
-      optionB: zod.string(),
-      optionC: zod.string(),
-      optionD: zod.string(),
-      correctAnswer: zod.enum(["A", "B", "C", "D"]),
+      questionType: zod.enum(["mcq", "structured"]).default("mcq"),
+      optionA: zod.string().optional(),
+      optionB: zod.string().optional(),
+      optionC: zod.string().optional(),
+      optionD: zod.string().optional(),
+      correctAnswer: zod.enum(["A", "B", "C", "D"]).optional(),
+      modelAnswer: zod.string().optional(),
       points: zod.number(),
     }),
   ),
@@ -222,10 +226,13 @@ export const GetTestResponse = zod.object({
     zod.object({
       id: zod.number(),
       questionText: zod.string(),
-      optionA: zod.string(),
-      optionB: zod.string(),
-      optionC: zod.string(),
-      optionD: zod.string(),
+      questionType: zod.enum(["mcq", "structured"]).optional(),
+      optionA: zod.string().nullable().optional(),
+      optionB: zod.string().nullable().optional(),
+      optionC: zod.string().nullable().optional(),
+      optionD: zod.string().nullable().optional(),
+      correctAnswer: zod.string().nullable().optional(),
+      modelAnswer: zod.string().nullable().optional(),
       points: zod.number(),
     }),
   ),
@@ -243,9 +250,15 @@ export const SubmitTestAnswersBody = zod.object({
   answers: zod.array(
     zod.object({
       questionId: zod.number(),
-      answer: zod.enum(["A", "B", "C", "D"]),
+      answer: zod.enum(["A", "B", "C", "D"]).optional(),
     }),
   ),
+  extendedAnswers: zod.array(
+    zod.object({
+      questionId: zod.number(),
+      structuredAnswer: zod.string().optional(),
+    }),
+  ).optional(),
 });
 
 export const SubmitTestAnswersResponse = zod.object({

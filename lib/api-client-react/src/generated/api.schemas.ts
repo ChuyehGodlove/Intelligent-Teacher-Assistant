@@ -15,6 +15,7 @@ export interface Class {
   subject: string;
   grade: string;
   studentCount: number;
+  classCode?: string;
   createdAt: string;
 }
 
@@ -64,21 +65,24 @@ export const QuestionCorrectAnswer = {
 export interface Question {
   id: number;
   questionText: string;
-  optionA: string;
-  optionB: string;
-  optionC: string;
-  optionD: string;
-  correctAnswer: QuestionCorrectAnswer;
+  questionType?: "mcq" | "structured";
+  optionA?: string | null;
+  optionB?: string | null;
+  optionC?: string | null;
+  optionD?: string | null;
+  correctAnswer?: QuestionCorrectAnswer | null;
+  modelAnswer?: string | null;
   points: number;
 }
 
 export interface QuestionForStudent {
   id: number;
   questionText: string;
-  optionA: string;
-  optionB: string;
-  optionC: string;
-  optionD: string;
+  questionType?: "mcq" | "structured";
+  optionA?: string | null;
+  optionB?: string | null;
+  optionC?: string | null;
+  optionD?: string | null;
   points: number;
 }
 
@@ -103,11 +107,13 @@ export const CreateTestRequestQuestionsItemCorrectAnswer = {
 
 export type CreateTestRequestQuestionsItem = {
   questionText: string;
-  optionA: string;
-  optionB: string;
-  optionC: string;
-  optionD: string;
-  correctAnswer: CreateTestRequestQuestionsItemCorrectAnswer;
+  questionType?: "mcq" | "structured";
+  optionA?: string;
+  optionB?: string;
+  optionC?: string;
+  optionD?: string;
+  correctAnswer?: CreateTestRequestQuestionsItemCorrectAnswer;
+  modelAnswer?: string;
   points: number;
 };
 
@@ -130,12 +136,18 @@ export const SubmitTestRequestAnswersItemAnswer = {
 
 export type SubmitTestRequestAnswersItem = {
   questionId: number;
-  answer: SubmitTestRequestAnswersItemAnswer;
+  answer?: SubmitTestRequestAnswersItemAnswer;
+};
+
+export type SubmitTestRequestExtendedAnswersItem = {
+  questionId: number;
+  structuredAnswer?: string;
 };
 
 export interface SubmitTestRequest {
   studentCode: string;
   answers: SubmitTestRequestAnswersItem[];
+  extendedAnswers?: SubmitTestRequestExtendedAnswersItem[];
 }
 
 export interface TestResult {
