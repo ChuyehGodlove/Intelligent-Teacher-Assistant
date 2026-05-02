@@ -23,6 +23,8 @@ import AnalysisDashboard from "@/pages/teacher/analysis";
 import StudentLogin from "@/pages/student/login";
 import StudentTests from "@/pages/student/tests";
 import TakeTest from "@/pages/student/tests/take";
+import StudentDashboard from "@/pages/student/dashboard";
+import StudentResults from "@/pages/student/results";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -52,8 +54,10 @@ function Router() {
         <StudentLayout>
           <Switch>
             <Route path="/student" component={StudentLogin} />
+            <Route path="/student/dashboard" component={StudentDashboard} />
             <Route path="/student/tests" component={StudentTests} />
             <Route path="/student/tests/:id" component={TakeTest} />
+            <Route path="/student/results/:resultId" component={StudentResults} />
             <Route component={NotFound} />
           </Switch>
         </StudentLayout>

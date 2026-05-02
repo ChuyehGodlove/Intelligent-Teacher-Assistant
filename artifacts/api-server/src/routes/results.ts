@@ -12,6 +12,34 @@ import { GetResultsQueryParams } from "@workspace/api-zod";
 
 const router: IRouter = Router();
 
+// Student history by student code (for dashboard)
+router.get("/student/:studentCode", async (req, res) => {
+  const studentCode = req.params.studentCode.toUpperCase();
+  const [student] = await db.select().from(studentsTable).where(eq(studentsTable.studentCode, studentCode));
+  if (!student) { res.status(404).json({ error: "Student not found" }); return; }
+
+  const results = await db.select().from(testResultsTable).where(eq(testResultsTable.studentId, student.id));
+  const tests = await db.select().from(testsTable);
+  const testMap = new Map(tests.map((t) => [t.id, t]));
+
+  const mapped = results.map((r) => {
+    const test = testMap.get(r.testId);
+    const percentage = r.totalPoints > 0 ? Math.round((r.earnedPoints / r.totalPoints) * 1000) / 10 : 0;
+    return {
+      id: r.id,
+      testId: r.testId,
+      testTitle: test?.title ?? "",
+      earnedPoints: r.earnedPoints,
+      totalPoints: r.totalPoints,
+      percentage,
+      status: r.status,
+      submittedAt: r.submittedAt.toISOString(),
+    };
+  }).sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+
+  res.json({ student: { id: student.id, name: student.name, studentCode: student.studentCode, classId: student.classId }, results: mapped });
+});
+
 router.get("/", async (req, res) => {
   const query = GetResultsQueryParams.safeParse(req.query);
   const { testId, studentId, classId } = query.success ? query.data : {};
@@ -64,6 +92,10 @@ router.get("/:resultId/answers", async (req, res) => {
   const questions = await db.select().from(questionsTable).where(eq(questionsTable.testId, result.testId));
   const questionMap = new Map(questions.map((q) => [q.id, q]));
 
+  const tests = await db.select().from(testsTable).where(eq(testsTable.id, result.testId));
+  const testTitle = tests[0]?.title ?? "";
+  const percentage = result.totalPoints > 0 ? Math.round((result.earnedPoints / result.totalPoints) * 1000) / 10 : 0;
+
   const enriched = answers.map((a) => {
     const q = questionMap.get(a.questionId);
     return {
@@ -74,6 +106,10 @@ router.get("/:resultId/answers", async (req, res) => {
       correctAnswer: q?.correctAnswer,
       modelAnswer: q?.modelAnswer,
       points: q?.points ?? 0,
+      optionA: q?.optionA ?? null,
+      optionB: q?.optionB ?? null,
+      optionC: q?.optionC ?? null,
+      optionD: q?.optionD ?? null,
       mcqAnswer: a.mcqAnswer,
       structuredAnswer: a.structuredAnswer,
       isCorrect: a.isCorrect,
@@ -83,7 +119,11 @@ router.get("/:resultId/answers", async (req, res) => {
     };
   });
 
-  res.json({ resultId, answers: enriched });
+  res.json({
+    resultId,
+    result: { testTitle, earnedPoints: result.earnedPoints, totalPoints: result.totalPoints, percentage, status: result.status, submittedAt: result.submittedAt.toISOString() },
+    answers: enriched,
+  });
 });
 
 // Teacher marks a structured answer
