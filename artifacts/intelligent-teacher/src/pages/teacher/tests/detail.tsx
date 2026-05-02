@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useRoute } from "wouter";
+import { useRoute, Link } from "wouter";
 import { useGetTest, useGetResults } from "@workspace/api-client-react";
 import { LoadingScreen } from "@/components/ui/loading";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, LayoutList, Users, AlignLeft, FileText, Brain, Wrench, CheckCircle, Loader2, AlertTriangle } from "lucide-react";
+import { Clock, LayoutList, Users, AlignLeft, FileText, Brain, Wrench, CheckCircle, Loader2, AlertTriangle, ArrowLeft } from "lucide-react";
 
 const AI_LABELS: Record<string, { label: string; color: string; icon: any; desc: string }> = {
   correct: { label: "Correct", color: "text-emerald-700 bg-emerald-50 border-emerald-200", icon: CheckCircle, desc: "Student answered correctly." },
@@ -100,6 +100,12 @@ export default function TestDetail() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
+      <Link href="/tests">
+        <button className="flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="w-4 h-4" /> Back to Tests
+        </button>
+      </Link>
+
       {/* Test header */}
       <div className="bg-card border border-border p-8 rounded-3xl shadow-sm">
         <div className="inline-flex px-3 py-1 bg-primary/10 text-primary font-bold text-xs uppercase tracking-wider rounded-full mb-3">

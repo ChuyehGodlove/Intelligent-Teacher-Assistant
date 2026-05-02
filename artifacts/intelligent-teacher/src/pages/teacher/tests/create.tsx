@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useCreateTest, useGetClasses } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Save, FileText, AlignLeft, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Trash2, Save, FileText, AlignLeft, ChevronDown, ChevronUp, ArrowLeft } from "lucide-react";
 
 type QuestionType = "mcq" | "structured";
 
@@ -103,6 +103,11 @@ export default function CreateTest() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500 pb-24">
       <div>
+        <Link href="/tests">
+          <button className="flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors mb-4">
+            <ArrowLeft className="w-4 h-4" /> Back to Tests
+          </button>
+        </Link>
         <h1 className="text-4xl font-display font-extrabold tracking-tight text-foreground">Create Test</h1>
         <p className="text-lg text-muted-foreground mt-2 font-medium">
           Build a new assessment with MCQ and/or structured questions.

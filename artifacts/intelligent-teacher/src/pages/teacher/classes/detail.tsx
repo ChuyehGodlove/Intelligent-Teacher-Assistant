@@ -4,7 +4,7 @@ import { LoadingScreen } from "@/components/ui/loading";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RadialProgress } from "@/components/ui/radial-progress";
-import { Users, FileText, CheckCircle2, TrendingUp, TrendingDown, Minus, BarChart2 } from "lucide-react";
+import { Users, FileText, CheckCircle2, TrendingUp, TrendingDown, Minus, BarChart2, ArrowLeft } from "lucide-react";
 
 export default function ClassDetail() {
   const [params] = useRoute("/classes/:id");
@@ -20,6 +20,12 @@ export default function ClassDetail() {
 
   return (
     <div className="space-y-10 animate-in fade-in duration-500">
+      <Link href="/classes">
+        <button className="flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="w-4 h-4" /> Back to Classes
+        </button>
+      </Link>
+
       <div className="bg-card border border-border p-8 rounded-3xl shadow-sm">
         <div className="inline-flex px-3 py-1 bg-primary/10 text-primary font-bold text-xs uppercase tracking-wider rounded-full mb-4">
           {cls.grade} • {cls.subject}
